@@ -34,10 +34,24 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
+# Set Apache DocumentRoot to Laravel public folder
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's|<Directory /var/www/html>|<Directory /var/www/html/public>|g' /etc/apache2/sites-available/000-default.conf
+
+# Create startup script to handle APP_KEY generation and cache
+RUN echo '#!/bin/bash\n\
+if [ -z "$APP_KEY" ]; then\n\
+    echo "Generating APP_KEY..."\n\
+    php artisan key:generate --force\n\
+fi\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan view:cache\n\
+exec apache2-foreground' > /usr/local/bin/start.sh \
+    && chmod +x /usr/local/bin/start.sh
+
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
-# Set Apache DocumentRoot to Laravel public folder
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
-CMD ["apache2-foreground"]
+# Start Apache with our custom script
+CMD ["/usr/local/bin/start.sh"]
