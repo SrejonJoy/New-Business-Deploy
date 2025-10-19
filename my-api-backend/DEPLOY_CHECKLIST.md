@@ -67,3 +67,36 @@ docker-compose -f docker-compose.test.yml down -v
 
 
 If you want, I can add a GitHub Actions workflow that runs tests with sqlite and (optionally) spins up the docker-compose MySQL for integration tests.
+
+---
+
+Netlify / Render integration quick reference
+
+- Your Netlify preview/site URL (provided):
+
+   https://68f546617cd13e02022d5112--fourplayjersey.netlify.app
+
+- Netlify environment variables to set (frontend site settings -> Build & deploy -> Environment):
+
+   - REACT_APP_API_BASE = https://new-business-deploy.onrender.com
+   - REACT_APP_GOOGLE_CLIENT_ID = 511157761906-b3f8ecfhlkdam8prdvt97sn1375r1jcm.apps.googleusercontent.com
+   - NODE_VERSION = 18
+
+- Render environment variables to set for the backend (use Render's dashboard secrets):
+
+   - APP_ENV = production
+   - APP_KEY = <your_generated_app_key>
+   - DB_CONNECTION = mysql
+   - DB_HOST = <render-db-host>
+   - DB_PORT = 3306
+   - DB_DATABASE = <db_name>
+   - DB_USERNAME = <db_user>
+   - DB_PASSWORD = <db_password>
+   - FRONTEND_URL = https://68f546617cd13e02022d5112--fourplayjersey.netlify.app
+   - SANCTUM_STATEFUL_DOMAINS = 68f546617cd13e02022d5112--fourplayjersey.netlify.app
+   - APP_URL = https://new-business-deploy.onrender.com
+   - GOOGLE_REDIRECT_URI = https://new-business-deploy.onrender.com/auth/google/callback
+
+Notes:
+- For Google OAuth, set the authorized redirect URI in the Google Cloud Console to the value of `GOOGLE_REDIRECT_URI` above.
+- Keep `GOOGLE_CLIENT_SECRET` and all DB secrets in Render (never in Netlify).

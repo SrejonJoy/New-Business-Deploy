@@ -30,6 +30,19 @@
       value: <db_user>
     - key: DB_PASSWORD
       value: <db_password>
+    - key: FRONTEND_URL
+      # Set this to your Netlify site URL (example: Netlify preview URL supplied)
+      value: https://68f546617cd13e02022d5112--fourplayjersey.netlify.app
+    - key: SANCTUM_STATEFUL_DOMAINS
+      # For Laravel Sanctum stateful SPA auth, include the frontend host here (no scheme)
+      value: 68f546617cd13e02022d5112--fourplayjersey.netlify.app
+    - key: APP_URL
+      value: https://new-business-deploy.onrender.com
+    - key: SESSION_DOMAIN
+      # Use your backend domain (for cookie domain). If using separate domains this may not work for cookie-based auth.
+      value: new-business-deploy.onrender.com
+    - key: GOOGLE_REDIRECT_URI
+      value: https://new-business-deploy.onrender.com/auth/google/callback
 
 # Frontend: Static Site using Netlify build
 - type: static_site
