@@ -38,15 +38,35 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
     && sed -i 's|<Directory /var/www/html>|<Directory /var/www/html/public>|g' /etc/apache2/sites-available/000-default.conf
 
-# Create startup script to handle APP_KEY generation and cache
+# Create startup script to handle APP_KEY generation, database setup, and cache
 RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Generate APP_KEY if missing\n\
 if [ -z "$APP_KEY" ]; then\n\
-    echo "Generating APP_KEY..."\n\
+    echo "⚠️  APP_KEY not set. Generating new key..."\n\
     php artisan key:generate --force\n\
 fi\n\
+\n\
+# Create SQLite database if using SQLite and file does not exist\n\
+if [ "$DB_CONNECTION" = "sqlite" ] && [ ! -f "$DB_DATABASE" ]; then\n\
+    echo "📦 Creating SQLite database..."\n\
+    touch "$DB_DATABASE"\n\
+    chmod 664 "$DB_DATABASE"\n\
+    chown www-data:www-data "$DB_DATABASE"\n\
+fi\n\
+\n\
+# Run migrations (optional - comment out if you want to run manually)\n\
+echo "🔄 Running database migrations..."\n\
+php artisan migrate --force || echo "⚠️  Migration failed or no database configured"\n\
+\n\
+# Clear and cache configs\n\
+echo "🚀 Optimizing Laravel..."\n\
 php artisan config:cache\n\
 php artisan route:cache\n\
 php artisan view:cache\n\
+\n\
+echo "✅ Laravel app ready!"\n\
 exec apache2-foreground' > /usr/local/bin/start.sh \
     && chmod +x /usr/local/bin/start.sh
 
