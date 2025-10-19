@@ -1,0 +1,12 @@
+[build]
+  # Build from the frontend subfolder
+  base = "my-social-login-app"
+  # Publish path is relative to the base directory
+  publish = "build"
+  # Install dependencies and build
+  command = "npm ci && npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
