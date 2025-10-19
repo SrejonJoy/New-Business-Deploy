@@ -38,13 +38,13 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
     && sed -i 's|<Directory /var/www/html>|<Directory /var/www/html/public>|g' /etc/apache2/sites-available/000-default.conf
 
-# Create startup script to handle APP_KEY generation, database setup, and cache
+# Create startup script to handle APP_KEY generation and SQLite setup
 RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
-# Generate APP_KEY if missing\n\
+# Generate APP_KEY if missing (do not write .env in production - prefer platform secret)\n\
 if [ -z "$APP_KEY" ]; then\n\
-    echo "⚠️  APP_KEY not set. Generating new key..."\n\
+    echo "⚠️  APP_KEY not set. Generating new key (temporary)..."\n\
     php artisan key:generate --force\n\
 fi\n\
 \n\
@@ -56,11 +56,9 @@ if [ "$DB_CONNECTION" = "sqlite" ] && [ ! -f "$DB_DATABASE" ]; then\n\
     chown www-data:www-data "$DB_DATABASE"\n\
 fi\n\
 \n\
-# Run migrations (optional - comment out if you want to run manually)\n\
-echo "🔄 Running database migrations..."\n\
-php artisan migrate --force || echo "⚠️  Migration failed or no database configured"\n\
+# Do NOT run migrations automatically in container start.\n\
+echo "ℹ️  Container started. Run migrations manually (recommended) via CI or Render jobs."\n\
 \n\
-# Clear and cache configs\n\
 echo "🚀 Optimizing Laravel..."\n\
 php artisan config:cache\n\
 php artisan route:cache\n\
