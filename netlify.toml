@@ -1,0 +1,11 @@
+[build]
+  # If your frontend is located inside the `my-api-backend/my-social-login-app` subfolder,
+  # set base accordingly so Netlify runs install/build there.
+  base = "my-api-backend/my-social-login-app"
+  publish = "build"
+  command = "npm ci && npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
