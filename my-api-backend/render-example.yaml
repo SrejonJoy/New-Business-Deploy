@@ -1,0 +1,49 @@
+# Example Render services configuration (reference-only). Adapt in Render dashboard or use as template.
+
+# Backend: Web Service using Dockerfile
+- type: web_service
+  name: my-api-backend
+  env: docker
+  region: oregon
+  plan: starter # choose plan according to needs
+  repo: https://github.com/SrejonJoy/New-Business-Deploy
+  branch: main
+  dockerfilePath: ./Dockerfile
+  buildCommand: docker build -t my-api-backend .
+  startCommand: vendor/bin/sail php-fpm || php artisan serve --host 0.0.0.0 --port 10000
+  envVars:
+    - key: APP_ENV
+      value: production
+    - key: APP_DEBUG
+      value: false
+    - key: APP_KEY
+      value: "${APP_KEY}"
+    - key: DB_CONNECTION
+      value: mysql
+    - key: DB_HOST
+      value: <render-db-host>
+    - key: DB_PORT
+      value: "3306"
+    - key: DB_DATABASE
+      value: <db_name>
+    - key: DB_USERNAME
+      value: <db_user>
+    - key: DB_PASSWORD
+      value: <db_password>
+
+# Frontend: Static Site using Netlify build
+- type: static_site
+  name: my-frontend
+  repo: https://github.com/SrejonJoy/New-Business-Deploy
+  branch: main
+  buildCommand: cd my-social-login-app && npm ci && npm run build
+  publishPath: my-social-login-app/build
+  envVars:
+    - key: REACT_APP_API_BASE
+      value: https://api.yourdomain.com
+
+# Notes:
+# - Render's static site can be used, or you can host frontend on Netlify (netlify.toml provided).
+# - Replace placeholders for DB and APP_KEY using Render's dashboard secret management.
+# - For managed databases, prefer Render's PostgreSQL or MySQL add-on; configure DB_HOST accordingly.
+# - Add health check endpoints (e.g., /health) and map a health check in Render's service settings.

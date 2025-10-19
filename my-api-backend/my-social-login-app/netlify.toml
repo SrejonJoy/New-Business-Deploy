@@ -1,0 +1,11 @@
+[build]
+  command = "npm ci && npm run build"
+  publish = "build"
+
+[context.production.environment]
+  REACT_APP_API_BASE = "https://api.yourdomain.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
